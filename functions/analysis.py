@@ -20,7 +20,7 @@ def hill_estimator(losses, k):
         raise ValueError("k must be less than the number of losses")
     x_k = sorted_losses[-k-1]
     sum_log_ratios = np.sum(np.log(sorted_losses[-k:]) - np.log(x_k))
-    return k / sum_log_ratios
+    return sum_log_ratios/k
 
 def pareto_tail_mle(X, p_min=0.99):
     x = np.asarray(X)
@@ -30,13 +30,14 @@ def pareto_tail_mle(X, p_min=0.99):
     
     return m / np.sum(np.log(tail / u))
 
-def pareto_tail_survival(X,p_min=0.99):
+def pareto_tail_survival(X,p_min=0.99,p_max=1.0):
     xs = np.sort(np.asarray(X)) # must sort the losses!
     n = len(xs)
     surv = 1.0 - np.arange(n) / n   # survival at xs
     # choose tail (e.g. top 1% as default)
-    u = np.quantile(xs, p_min)
-    mask = xs >= u
+    u_min = np.quantile(xs, p_min)
+    u_max = np.quantile(xs, p_max)
+    mask = (xs >= u_min) & (xs <= u_max)
     logx = np.log(xs[mask])
     logsurv = np.log(surv[mask])
     slope, intercept = np.polyfit(logx, logsurv, 1)
