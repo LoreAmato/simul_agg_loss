@@ -24,3 +24,5 @@ dist/
 
 # Data
 data/
+.sqlite
+.zip
